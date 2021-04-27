@@ -11,10 +11,10 @@
     <xacro:property name="use_mesh_file_core" value="true"/>
     <xacro:property name="use_mesh_file_rotor_unit" value="true"/>
     <!-- TODO change add meshes to package -->
-    <xacro:property name="mesh_file_core" value="package://rotors_description/meshes/soliro/main.stl"/>
-    <xacro:property name="mesh_file_core_collision" value="package://rotors_description/meshes/soliro/main.stl"/>
-    <xacro:property name="mesh_file_right_wing" value="package://rotors_description/meshes/soliro/soliro_wing_right.stl"/>
-    <xacro:property name="mesh_file_right_motor" value="package://rotors_description/meshes/soliro/motor_right.stl"/>
+    <xacro:property name="mesh_soliro_base" value="package://rotors_description/meshes/soliro/soliro_body.stl"/>
+    <xacro:property name="mesh_soliro_base_collision" value="package://rotors_description/meshes/soliro/soliro_body.stl"/>
+    <xacro:property name="mesh_soliro_wing" value="package://rotors_description/meshes/soliro/soliro_wing_right.stl"/>
+    <xacro:property name="mesh_soliro_motor_unit" value="package://rotors_description/meshes/soliro/motor_unit.stl"/>
 
     <xacro:property name="mass_core" value="3.13"/>    <!-- [kg] -->
     <xacro:property name="mass_tilt_unit" value="0.277"/>    <!-- [kg] -->
@@ -39,13 +39,13 @@
         <!-- [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] -->
     </xacro:property>
 
-    <!-- Body Interia / CoM Offset -->
+    <!-- Body Inertia / CoM Offset -->
     <xacro:property name="body_inertia_origin">
         <!-- <origin xyz="0.03 0 0.01" /> -->
         <origin xyz="0.0 0.0 0.0" />
     </xacro:property>
 
-    <!-- Rotor unit inertia without the propellor. -->
+    <!-- Rotor unit inertia without the propeller. -->
     <xacro:property name="tilt_unit_inertia">
         <inertia ixx="0.00034257" ixy="0" ixz="0" iyy="0.0013205" iyz="0" izz="0.0010037"/>
         <!-- [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] -->
@@ -63,16 +63,14 @@
             body_width="${body_width}"
             body_height="${body_height}"
             use_mesh_file="${use_mesh_file_core}"
-            mesh_file="${mesh_file_core}"
-            collision_mesh_file="${mesh_file_core_collision}">
+            mesh_file="${mesh_soliro_base}"
+            collision_mesh_file="${mesh_soliro_base_collision}">
         <xacro:insert_block name="body_origin"/>
         <xacro:insert_block name="body_inertia"/>
         <xacro:insert_block name="body_inertia_origin"/>
     </xacro:soliro_base_macro>
 
-
-    <!-- TODO Instantiate left and right wing -->
-    <!-- right -->
+    <!-- Right wing unit-->
     <xacro:wing_unit
             robot_namespace="${namespace}"
             direction="ccw"
@@ -81,13 +79,39 @@
             mass_tilt_unit="${mass_tilt_unit}"
             rotor_offset_top="${rotor_offset_top}"
             wing_number="0"
-            mesh="propeller"
-            mesh_tilt_wing="${mesh_file_right_wing}"
+            mesh_tilt_wing="${mesh_soliro_wing}"
+            mesh_motor_unit="${mesh_soliro_motor_unit}"
             color="Black">
-        <origin xyz="0 -${arm_length} 0" rpy="0 0 4.71238898038"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <xacro:insert_block name="rotor_inertia" />
     </xacro:wing_unit>
 
-    <!-- TODO Instantiate rear tilt rotor -->
+    <!-- Left wing unit-->
+    <xacro:wing_unit
+            robot_namespace="${namespace}"
+            direction="ccw"
+            parent="${tilt_unit_parent}"
+            mass_rotor="${mass_rotor}"
+            mass_tilt_unit="${mass_tilt_unit}"
+            rotor_offset_top="${rotor_offset_top}"
+            wing_number="1"
+            mesh_tilt_wing="${mesh_soliro_wing}"
+            mesh_motor_unit="${mesh_soliro_motor_unit}"
+            color="Black">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:insert_block name="rotor_inertia" />
+    </xacro:wing_unit>
+
+    <!-- Rear actuation unit -->
+    <xacro:rear_rotor
+            robot_namespace="${namespace}"
+            direction="ccw"
+            parent="${tilt_unit_parent}"
+            mass_rotor="${mass_rotor}"
+            rotor_offset_top="0.05"
+            color="Black">
+        <origin xyz="-0.7845 0 0.0325" rpy="0 0 0"/>
+        <xacro:insert_block name="rotor_inertia" />
+    </xacro:rear_rotor>
 
 </robot>

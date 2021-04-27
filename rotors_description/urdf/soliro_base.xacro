@@ -5,7 +5,7 @@
 
     <xacro:property name="mounting_roll" value="$(arg model_roll)" />
 
-    <!-- Instantiate OMAV "mechanics". -->
+    <!-- Instantiate Soliro "mechanics". -->
     <xacro:include filename="$(find rotors_description)/urdf/soliro.xacro"/>
 
     <xacro:include filename="$(find rotors_description)/urdf/soliro_actuators.xacro"/>

@@ -9,23 +9,23 @@
         <link name="${robot_namespace}/base_link"></link>
 
         <joint name="${robot_namespace}/base_joint" type="fixed">
-            <xacro:insert_block name="origin" />
-            <parent link="${robot_namespace}/base_link" />
-            <child link="${robot_namespace}/base_link_inertia" />
+            <xacro:insert_block name="origin"/>
+            <parent link="${robot_namespace}/base_link"/>
+            <child link="${robot_namespace}/base_link_inertia"/>
         </joint>
 
         <link name="${robot_namespace}/base_link_inertia">
             <inertial>
-                <mass value="${mass}" />  <!-- [kg] -->
-                <xacro:insert_block name="inertia_origin" />
-                <xacro:insert_block name="inertia" />
+                <mass value="${mass}"/>  <!-- [kg] -->
+                <xacro:insert_block name="inertia_origin"/>
+                <xacro:insert_block name="inertia"/>
             </inertial>
 
             <visual>
-                <origin xyz="0 0 0" rpy="0 0 0" />
+                <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
                     <xacro:if value="${use_mesh_file}">
-                        <mesh filename="${mesh_file}" scale="1 1 1" />
+                        <mesh filename="${mesh_file}" scale="0.001 0.001 0.001"/>
                     </xacro:if>
                     <xacro:unless value="${use_mesh_file}">
                         <box size="${body_width} ${body_width} ${body_height}"/> <!-- [m] [m] [m] -->
@@ -34,14 +34,15 @@
             </visual>
 
             <collision>
-                <origin xyz="0 0 0" rpy="0 0 0" />
+                <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <xacro:if value="${use_mesh_file}">
-                        <mesh filename="${collision_mesh_file}" scale="1 1 1" />
-                    </xacro:if>
-                    <xacro:unless value="${use_mesh_file}">
-                        <box size="${body_width} ${body_width} ${body_height}"/> <!-- [m] [m] [m] -->
-                    </xacro:unless>
+                    <box size="0.333 0.333 0.333"/>
+                    <!--                    <xacro:if value="${use_mesh_file}">-->
+                    <!--                        <mesh filename="${collision_mesh_file}" scale="1 1 1" />-->
+                    <!--                    </xacro:if>-->
+                    <!--                    <xacro:unless value="${use_mesh_file}">-->
+                    <!--                        <box size="${body_width} ${body_width} ${body_height}"/> &lt;!&ndash; [m] [m] [m] &ndash;&gt;-->
+                    <!--                    </xacro:unless>-->
                 </geometry>
             </collision>
 
@@ -79,16 +80,22 @@
         </gazebo>
     </xacro:macro>
 
-    <!-- Tilting wing unit link and joint. -->
+    <!-- Wing unit with motor unit and propeller -->
     <xacro:macro name="wing_unit"
-                 params="robot_namespace direction parent mass_rotor mass_tilt_unit rotor_offset_top wing_number color mesh mesh_tilt_wing *origin *inertia">
+                 params="robot_namespace direction parent mass_rotor mass_tilt_unit rotor_offset_top wing_number color mesh_tilt_wing mesh_motor_unit *origin *inertia">
 
-        <!-- Wing -->
-        <joint name="${robot_namespace}/tilt_wing_servo_${wing_number}" type="continuous">
-            <origin xyz="0 -0.37 0" rpy="0 0 ${pi}"/>
-            <axis xyz="0 1 0" />
-            <parent link="${parent}" />
-            <child link="${namespace}/tilt_wing_${wing_number}" />
+        <!-- Wing (wing_number: 0=right, 1=left)-->
+        <joint name="${robot_namespace}/tilt_wing_servo_${wing_number}_revolutejoint" type="revolute">
+            <limit lower="-${pi}" upper="${pi}" effort="0" velocity="0"/>
+            <xacro:if value="${wing_number}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:if>
+            <xacro:unless value="${wing_number}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:unless>
+            <axis xyz="0 1 0"/>
+            <parent link="${parent}"/>
+            <child link="${namespace}/tilt_wing_${wing_number}"/>
         </joint>
 
         <gazebo reference="${robot_namespace}/tilt_wing_servo_${wing_number}_revolutejoint">
@@ -97,20 +104,20 @@
 
         <link name="${namespace}/tilt_wing_${wing_number}">
             <inertial>
-                <mass value="${mass_tilt_unit}" /> <!-- [kg] -->
-                <xacro:insert_block name="tilt_unit_inertia" />
+                <mass value="${mass_tilt_unit}"/> <!-- [kg] -->
+                <xacro:insert_block name="tilt_unit_inertia"/>
             </inertial>
             <visual>
+                <xacro:if value="${wing_number}">
+                    <origin xyz="0 0 0" rpy="0 0 0"/>
+                </xacro:if>
+                <xacro:unless value="${wing_number}">
+                    <origin xyz="0 0 0" rpy="${pi} 0 0"/>
+                </xacro:unless>
                 <geometry>
-                    <mesh filename="${mesh_tilt_wing}"
-                          scale="0.001 0.001 0.001" />
+                    <mesh filename="${mesh_tilt_wing}" scale="0.001 0.001 0.001"/>
                 </geometry>
             </visual>
-            <collision>
-                <geometry>
-                    <box size="0.005 0.005 0.005"  /> <!-- [m] -->
-                </geometry>
-            </collision>
         </link>
 
         <gazebo reference="${namespace}/tilt_wing_${wing_number}">
@@ -118,13 +125,18 @@
         </gazebo>
 
         <!-- Motor tilt mechanism -->
-        <joint name="${robot_namespace}/motor_tilt_mechanism_servo_${wing_number}" type="revolute">
-            <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
-            <axis xyz="0 0 1" />
+        <joint name="${robot_namespace}/motor_tilt_mechanism_servo_${wing_number}_revolutejoint" type="revolute">
+            <xacro:if value="${wing_number}">
+                <origin xyz="0 0.349 0" rpy="0 0 0"/>
+            </xacro:if>
+            <xacro:unless value="${wing_number}">
+                <origin xyz="0 -0.349 0" rpy="0 0 0"/>
+            </xacro:unless>
+            <axis xyz="0 0 1"/>
             <!-- TODO check effort and velocity -->
-            <limit lower="-${pi}" upper="${pi}" effort="0" velocity="0" />
-            <parent link="${namespace}/tilt_wing_${wing_number}" />
-            <child link="${namespace}/motor_tilt_mechanism_${wing_number}" />
+            <limit lower="-${pi/16}" upper="${pi/16}" effort="0" velocity="0"/>
+            <parent link="${namespace}/tilt_wing_${wing_number}"/>
+            <child link="${namespace}/motor_tilt_mechanism_${wing_number}"/>
         </joint>
 
         <gazebo reference="${robot_namespace}/motor_tilt_mechanism_servo_${wing_number}_revolutejoint">
@@ -133,20 +145,15 @@
 
         <link name="${namespace}/motor_tilt_mechanism_${wing_number}">
             <inertial>
-                <mass value="${mass_tilt_unit}" /> <!-- [kg] -->
-                <xacro:insert_block name="tilt_unit_inertia" />
+                <mass value="${mass_tilt_unit}"/> <!-- [kg] -->
+                <xacro:insert_block name="tilt_unit_inertia"/>
             </inertial>
             <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <mesh filename="${mesh_file_right_motor}"
-                          scale="1 1 1" />
+                    <mesh filename="${mesh_motor_unit}" scale="0.001 0.001 0.001"/>
                 </geometry>
             </visual>
-            <collision>
-                <geometry>
-                    <box size="0.005 0.005 0.005"  /> <!-- [m] -->
-                </geometry>
-            </collision>
         </link>
 
         <gazebo reference="${namespace}/tilt_wing_${wing_number}">
@@ -155,7 +162,7 @@
 
         <!-- Rotor -->
         <joint name="rotor_${wing_number}_joint" type="continuous">
-            <origin xyz="0.1 0 0" rpy="0 0 0"/>
+            <origin xyz="0.11 0 0" rpy="0 0 0"/>
             <axis xyz="1 0 0"/>
             <parent link="${namespace}/motor_tilt_mechanism_${wing_number}"/>
             <child link="rotor_${wing_number}"/>
@@ -167,19 +174,58 @@
                 <xacro:insert_block name="inertia"/>
             </inertial>
             <visual>
+                <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
                 <geometry>
                     <mesh filename="package://rotors_description/meshes/soliro/propeller.stl"
-                          scale="1 1 1" />
+                          scale="1 1 1"/>
                 </geometry>
             </visual>
             <collision>
+                <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
                 <geometry>
-                    <cylinder length="0.005" radius="${radius_rotor}" /> --> <!-- [m] -->
+                    <cylinder length="0.005" radius="${radius_rotor}"/>
+                    --> <!-- [m] -->
                 </geometry>
             </collision>
         </link>
 
         <gazebo reference="rotor_${wing_number}">
+            <material>Gazebo/${color}</material>
+        </gazebo>
+
+    </xacro:macro>
+
+    <xacro:macro name="rear_rotor"
+                 params="robot_namespace direction parent mass_rotor rotor_offset_top color *origin *inertia">
+
+        <!-- Rotor -->
+        <joint name="rear_rotor_joint" type="continuous">
+            <xacro:insert_block name="origin" />
+            <axis xyz="0 0 1" />
+            <parent link="${parent}"/>
+            <child link="rear_rotor" />
+        </joint>
+
+        <link name="rear_rotor">
+            <inertial>
+                <mass value="${mass_rotor}" /> <!-- [kg] -->
+                <xacro:insert_block name="inertia" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://rotors_description/meshes/soliro/propeller.stl"
+                          scale="1 1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder length="0.005" radius="${radius_rotor}" /> <!-- [m] -->
+                </geometry>
+            </collision>
+        </link>
+
+        <gazebo reference="rear_rotor">
             <material>Gazebo/${color}</material>
         </gazebo>
 
