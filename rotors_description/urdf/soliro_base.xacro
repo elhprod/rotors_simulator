@@ -46,8 +46,8 @@
                 wait_to_record_bag="$(arg wait_to_record_bag)"/>
     </xacro:if>
 
-    <!-- Add odometry. -->
-    <xacro:include filename="$(find rotors_description)/urdf/odometry_sensor_smooth.xacro"/>
+<!--    &lt;!&ndash; Add odometry. &ndash;&gt;-->
+<!--    <xacro:include filename="$(find rotors_description)/urdf/odometry_sensor_smooth.xacro"/>-->
 
 </robot>
 

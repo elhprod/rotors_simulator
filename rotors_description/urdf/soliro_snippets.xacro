@@ -86,7 +86,7 @@
 
         <!-- Wing (wing_number: 0=right, 1=left)-->
         <joint name="${robot_namespace}/tilt_wing_servo_${wing_number}_revolutejoint" type="revolute">
-            <limit lower="-${pi}" upper="${pi}" effort="0" velocity="0"/>
+            <limit lower="-${pi}" upper="${pi}" effort="1000" velocity="1000"/>
             <xacro:if value="${wing_number}">
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </xacro:if>
@@ -134,7 +134,7 @@
             </xacro:unless>
             <axis xyz="0 0 1"/>
             <!-- TODO check effort and velocity -->
-            <limit lower="-${pi/16}" upper="${pi/16}" effort="0" velocity="0"/>
+            <limit lower="-${pi/16}" upper="${pi/16}" effort="1000" velocity="1000"/>
             <parent link="${namespace}/tilt_wing_${wing_number}"/>
             <child link="${namespace}/motor_tilt_mechanism_${wing_number}"/>
         </joint>

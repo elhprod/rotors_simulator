@@ -10,24 +10,24 @@
     <arg name="base_frame_name" default="$(arg mav_name)/base_link"/>
 
     <!-- Vehicle params -->
-    <arg name="model" default="$(find rotors_description)/urdf/soliro.xacro"/>
+    <arg name="model" default="$(find rotors_description)/urdf/soliro_base.xacro"/>
     <arg name="enable_logging" default="false"/>
     <arg name="enable_ground_truth" default="true"/>
     <arg name="log_file" default="$(arg mav_name)"/>
 
     <arg name="spawn_x" default="0.0"/>
     <arg name="spawn_y" default="0.0"/>
-    <arg name="spawn_z" default="0.3"/>
+    <arg name="spawn_z" default="0.5"/>
 
     <!-- ******************************* -->
     <!-- ****** Gazebo Simulation ****** -->
     <!-- ******************************* -->
 
-    <arg name="world_name" default="empty_world"/>
+    <arg name="world_name" default="empty"/>
     <arg name="debug" default="false"/>
     <arg name="gui" default="true"/>
-    <arg name="paused" default="false"/>
-    <arg name="verbose" default="false"/>
+    <arg name="paused" default="true"/>
+    <arg name="verbose" default="true"/>
 
     <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find rotors_gazebo)/models"/>
     <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find rotors_gazebo)/models"/>
