@@ -87,12 +87,7 @@
         <!-- Wing (wing_number: 0=right, 1=left)-->
         <joint name="${robot_namespace}/tilt_wing_servo_${wing_number}_revolutejoint" type="revolute">
             <limit lower="-${pi}" upper="${pi}" effort="1000" velocity="1000"/>
-            <xacro:if value="${wing_number}">
-                <origin xyz="0 0 0" rpy="0 0 0"/>
-            </xacro:if>
-            <xacro:unless value="${wing_number}">
-                <origin xyz="0 0 0" rpy="0 0 0"/>
-            </xacro:unless>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
             <parent link="${parent}"/>
             <child link="${namespace}/tilt_wing_${wing_number}"/>
@@ -109,10 +104,10 @@
             </inertial>
             <visual>
                 <xacro:if value="${wing_number}">
-                    <origin xyz="0 0 0" rpy="0 0 0"/>
+                    <origin xyz="0 0 0" rpy="${pi} 0 0"/>
                 </xacro:if>
                 <xacro:unless value="${wing_number}">
-                    <origin xyz="0 0 0" rpy="${pi} 0 0"/>
+                    <origin xyz="0 0 0" rpy="0 0 0"/>
                 </xacro:unless>
                 <geometry>
                     <mesh filename="${mesh_tilt_wing}" scale="0.001 0.001 0.001"/>
